@@ -802,6 +802,55 @@ function exportCSV() {
   a.download='production-'+today()+'.csv'; a.click();
 }
 
+// --- Kết nối Google Sheets ---
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMqRkFrFICXi0yy44PFeeGcV2axz7jA6u9uHcm3cjv409iF_KFYifiuMAslv8dfVAkeA/exec";
+
+const btnAdd = document.querySelector('.btn.bp');
+if (btnAdd) {
+    btnAdd.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const inputData = {
+            ngay: document.querySelector('input[type="date"]').value,
+            ca: document.querySelector('select').value,
+            congDoan: document.querySelectorAll('select')[1] ? document.querySelectorAll('select')[1].value : "AVI-1",
+            input: document.querySelector('input[placeholder="0"]').value || 0,
+            output: document.querySelectorAll('input[placeholder="0"]')[1] ? document.querySelectorAll('input[placeholder="0"]')[1].value : 0,
+            ghiChu: document.querySelector('input[placeholder="Ghi chú..."]').value || ""
+        };
+
+        btnAdd.innerText = "⏳ Đang lưu...";
+        btnAdd.style.pointerEvents = "none";
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(inputData)
+        })
+        .then(() => {
+            btnAdd.innerText = "+ Thêm";
+            btnAdd.style.pointerEvents = "auto";
+            alert("Đã thêm dữ liệu thành công vào Sheets!");
+            
+            // Định dạng lại giao diện hoặc reset ô nhập nếu cần
+            document.querySelector('input[placeholder="0"]').value = "";
+            if(document.querySelectorAll('input[placeholder="0"]')[1]) {
+                document.querySelectorAll('input[placeholder="0"]')[1].value = "";
+            }
+            document.querySelector('input[placeholder="Ghi chú..."]').value = "";
+            
+            // Gọi lại hàm vẽ bảng của Claude để hiển thị nếu cần
+            if (typeof renderTable === "function") renderTable();
+        })
+        .catch(err => {
+            btnAdd.innerText = "+ Thêm";
+            btnAdd.style.pointerEvents = "auto";
+            alert("Lỗi rồi bạn ơi!");
+        });
+    });
+}
+
 renderTable();
 </script>
 </body>

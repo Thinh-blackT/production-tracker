@@ -802,52 +802,75 @@ function exportCSV() {
   a.download='production-'+today()+'.csv'; a.click();
 }
 
-// --- Kết nối Google Sheets ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/library/d/1OW_NVWcNKVrSLXD_TFoDdWoxem8Gluhh4-ZZiNnpKE6I2zrOGngeJyuo/3";
+// --- Kết nối Google Sheets chuẩn hóa ---
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy8xxJAGm2jsBvQA5-V_XvI-XOxenOwbj-I3_KimNXeM8AdVwByHaEhubKU3QvnOjy/exec";
 
 const btnAdd = document.querySelector('.btn.bp');
 if (btnAdd) {
     btnAdd.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const inputData = {
-            ngay: document.querySelector('input[type="date"]').value,
-            ca: document.querySelector('select').value,
-            congDoan: document.querySelectorAll('select')[1] ? document.querySelectorAll('select')[1].value : "AVI-1",
-            input: document.querySelector('input[placeholder="0"]').value || 0,
-            output: document.querySelectorAll('input[placeholder="0"]')[1] ? document.querySelectorAll('input[placeholder="0"]')[1].value : 0,
-            ghiChu: document.querySelector('input[placeholder="Ghi chú..."]').value || ""
-        };
-
-        btnAdd.innerText = "⏳ Đang lưu...";
-        btnAdd.style.pointerEvents = "none";
-
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(inputData)
-        })
-        .then(() => {
-            btnAdd.innerText = "+ Thêm";
-            btnAdd.style.pointerEvents = "auto";
-            alert("Đã thêm dữ liệu thành công vào Sheets!");
+        // Để cho hàm của Claude chạy trước nhằm tính toán số liệu trên giao diện
+        setTimeout(function() {
+            // Lấy chính xác các giá trị đang hiển thị trên Form nhập liệu
+            const dateVal = document.querySelector('input[type="date"]')?.value || new Date().toISOString().split('T')[0];
             
-            // Định dạng lại giao diện hoặc reset ô nhập nếu cần
-            document.querySelector('input[placeholder="0"]').value = "";
-            if(document.querySelectorAll('input[placeholder="0"]')[1]) {
-                document.querySelectorAll('input[placeholder="0"]')[1].value = "";
-            }
-            document.querySelector('input[placeholder="Ghi chú..."]').value = "";
-            
-            // Gọi lại hàm vẽ bảng của Claude để hiển thị nếu cần
-            if (typeof renderTable === "function") renderTable();
-        })
-        .catch(err => {
-            btnAdd.innerText = "+ Thêm";
-            btnAdd.style.pointerEvents = "auto";
-            alert("Lỗi rồi bạn ơi!");
-        });
+            // Dò tìm chính xác ô chọn Ca và ô chọn Máy
+            const selects = document.querySelectorAll('select');
+            let caVal = "Ca Ngày";
+            let mayVal = "AVI-1";
+            if (selects.length > 0) caVal = selects[0].value;
+            if (selects.length > 1) mayVal = selects[1].value;
+
+            // Dò tìm các ô nhập số lượng dựa trên thứ tự xuất hiện
+            const numInputs = document.querySelectorAll('input[placeholder="0"]');
+            const inVal = numInputs[0] ? (parseInt(numInputs[0].value) || 0) : 0;
+            const outVal = numInputs[1] ? (parseInt(numInputs[1].value) || 0) : 0;
+
+            // Tự động tính toán Defect và Yield ăn khớp 100% với Web
+            const defectVal = inVal - outVal >= 0 ? inVal - outVal : 0;
+            const yieldVal = inVal > 0 ? ((outVal / inVal) * 100).toFixed(2) + "%" : "0.00%";
+
+            // Đóng gói dữ liệu gửi đi
+            const inputData = {
+                ngay: dateVal,
+                ca: caVal,
+                congDoan: mayVal,
+                input: inVal,
+                output: outVal,
+                defect: defectVal,
+                yieldPct: yieldVal
+            };
+
+            // Đổi trạng thái nút bấm
+            btnAdd.innerText = "⏳ Đang lưu...";
+            btnAdd.style.pointerEvents = "none";
+
+            // Gửi dữ liệu sang Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(inputData)
+            })
+            .then(() => {
+                btnAdd.innerText = "+ Thêm";
+                btnAdd.style.pointerEvents = "auto";
+                alert("Đã đồng bộ dữ liệu thành công vào Google Sheets!");
+                
+                // Xóa sạch ô nhập số để nhập dòng tiếp theo
+                if(numInputs[0]) numInputs[0].value = "";
+                if(numInputs[1]) numInputs[1].value = "";
+                const noteInput = document.querySelector('input[placeholder="Ghi chú..."]');
+                if(noteInput) noteInput.value = "";
+                
+                // Ép Web vẽ lại bảng dữ liệu phía dưới
+                if (typeof renderTable === "function") renderTable();
+            })
+            .catch(err => {
+                btnAdd.innerText = "+ Thêm";
+                btnAdd.style.pointerEvents = "auto";
+                console.error(err);
+            });
+        }, 100); // Trễ 100 mili giây để đồng bộ với Claude
     });
 }
 

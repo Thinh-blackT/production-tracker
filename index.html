@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Production Line Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="light"]{
+  --bg1:#f0f2f7;--bg2:#ffffff;--bg3:#f5f7fa;--bg4:#e8ecf4;
+  --bd:#dde2ee;--bd2:#c8cfdf;
+  --t1:#1a2035;--t2:#4a5578;--t3:#8b95b0;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,0.07);
+}
+:root[data-theme="dark"]{
+  --bg1:#0d0f14;--bg2:#13161d;--bg3:#1a1e28;--bg4:#222636;
+  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
+  --t1:#e8eaf0;--t2:#8891a8;--t3:#555e78;
+  --shadow:0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md:0 4px 6px rgba(0,0,0,0.4);
+}
+:root{
+  --blue:#2563eb;--blueli:#eff4ff;
+  --green:#16a34a;--greenli:#f0fdf4;
+  --amber:#d97706;--amberli:#fffbeb;
+  --red:#dc2626;--redli:#fef2f2;
+  --purple:#7c3aed;--purpli:#f5f3ff;
+  --teal:#0d9488;--tealli:#f0fdfa;
+  --pink:#db2777;--pinkli:#fdf2f8;
+  --orange:#ea580c;--orangeli:#fff7ed;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg1);color:var(--t1);min-height:100vh;font-size:14px;transition:background .2s,color .2s}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+input,select,button{font-family:'DM Sans',sans-serif}
+.inp{background:var(--bg2);border:1.5px solid var(--bd);border-radius:8px;padding:0 12px;height:36px;font-size:13px;color:var(--t1);outline:none;width:100%;transition:all .15s;box-shadow:var(--shadow)}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
+.inp::placeholder{color:var(--t3)}
+select.inp option{background:var(--bg2);color:var(--t1)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:36px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.bp{background:var(--blue);color:#fff;box-shadow:0 1px 2px rgba(37,99,235,0.3)}.bp:hover{background:#1d4ed8;box-shadow:0 4px 8px rgba(37,99,235,0.3)}
+.bg{background:var(--bg2);color:var(--t2);border:1.5px solid var(--bd);box-shadow:var(--shadow)}.bg:hover{background:var(--bg3)}
+.be{background:var(--bg2);color:var(--t3);border:1.5px solid var(--bd);width:30px;height:30px;padding:0;justify-content:center;border-radius:7px;font-size:13px}.be:hover{color:var(--blue);border-color:var(--blue)}
+.bdel{background:var(--redli);color:var(--red);border:1.5px solid #fecaca;height:30px;padding:0 8px;font-size:12px;border-radius:7px}.bdel:hover{background:#fee2e2}
+.card{background:var(--bg2);border:1.5px solid var(--bd);border-radius:14px;box-shadow:var(--shadow)}
+.lbl{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+.mono{font-family:'IBM Plex Mono',monospace}
+.tag{display:inline-flex;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;border-radius:5px;padding:2px 8px;border:1.5px solid;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+[data-theme="light"] .tg-dc1{color:#db2777;background:#fdf2f8;border-color:#fbcfe8}
+[data-theme="light"] .tg-dc2{color:#ea580c;background:#fff7ed;border-color:#fed7aa}
+[data-theme="light"] .tg-avi{color:#2563eb;background:#eff4ff;border-color:#bfdbfe}
+[data-theme="light"] .tg-mvi-m{color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe}
+[data-theme="light"] .tg-mvi-map{color:#0d9488;background:#f0fdfa;border-color:#99f6e4}
+[data-theme="light"] .tg-pack{color:#d97706;background:#fffbeb;border-color:#fde68a}
+[data-theme="light"] .tg-day{color:#d97706;background:#fffbeb;border-color:#fde68a}
+[data-theme="light"] .tg-night{color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe}
+[data-theme="dark"] .tg-dc1{color:#f472b6;background:rgba(244,114,182,.1);border-color:rgba(244,114,182,.3)}
+[data-theme="dark"] .tg-dc2{color:#fb923c;background:rgba(251,146,60,.1);border-color:rgba(251,146,60,.3)}
+[data-theme="dark"] .tg-avi{color:#4a9eff;background:rgba(74,158,255,.1);border-color:rgba(74,158,255,.3)}
+[data-theme="dark"] .tg-mvi-m{color:#a78bfa;background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3)}
+[data-theme="dark"] .tg-mvi-map{color:#2dd4bf;background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.3)}
+[data-theme="dark"] .tg-pack{color:#f5a623;background:rgba(245,166,35,.1);border-color:rgba(245,166,35,.3)}
+[data-theme="dark"] .tg-day{color:#f5a623;background:rgba(245,166,35,.07);border-color:rgba(245,166,35,.2)}
+[data-theme="dark"] .tg-night{color:#a78bfa;background:rgba(167,139,250,.07);border-color:rgba(167,139,250,.2)}
+.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:9px 12px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;border-bottom:2px solid var(--bd);white-space:nowrap;text-align:left;background:var(--bg3)}
+td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--t2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:var(--bg3)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+header{background:var(--bg2);border-bottom:1.5px solid var(--bd);position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.hrow{display:flex;align-items:center;gap:16px;padding:0 24px;height:56px}
+nav{display:flex;padding:0 24px;border-top:1px solid var(--bd)}
+.tab{padding:10px 18px;font-size:13px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--t3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.fbtn{padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;border:1.5px solid var(--bd);background:var(--bg2);color:var(--t2);cursor:pointer;transition:all .15s}
+.fbtn.on{background:var(--blueli);color:var(--blue);border-color:#bfdbfe;font-weight:600}
+[data-theme="dark"] .fbtn.on{background:rgba(37,99,235,.15);color:#60a5fa;border-color:rgba(37,99,235,.4)}
+main{max-width:1440px;margin:0 auto;padding:20px 24px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:900px){.g2{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.g5{grid-template-columns:repeat(3,1fr)}}
+.sec{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;padding-bottom:10px;border-bottom:1.5px solid var(--bd)}
+.flow-box{background:var(--bg3);border:1.5px solid var(--bd);border-radius:10px;padding:12px 14px;min-width:120px;flex-shrink:0;text-align:center}
+.kpi-card{background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;padding:16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.sum-th{padding:8px 10px;font-size:10px;font-weight:700;text-align:center;border:1px solid var(--bd);white-space:nowrap}
+.sum-td{padding:8px 10px;font-size:12px;text-align:center;border:1px solid var(--bd);font-family:'IBM Plex Mono',monospace}
+/* date filter bar */
+.date-filter{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg3);border:1.5px solid var(--bd);border-radius:10px;margin-bottom:14px;flex-wrap:wrap}
+/* theme toggle */
+.theme-btn{width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;transition:background .2s;padding:0}
+[data-theme="light"] .theme-btn{background:#dde2ee}
+[data-theme="dark"]  .theme-btn{background:var(--blue)}
+.theme-btn::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+[data-theme="light"] .theme-btn::after{left:3px}
+[data-theme="dark"]  .theme-btn::after{left:19px}
+/* sync badge */
+.sync-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <span style="color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700">PLT</span>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--t1)">Production Line Tracker</div>
+        <div style="font-size:11px;color:var(--t3)" id="hdr-date"></div>
+      </div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+      <span id="sync-status" style="font-size:11px;color:var(--t3);display:flex;align-items:center"></span>
+      <button class="theme-btn" onclick="toggleTheme()" title="Đổi giao diện"></button>
+      <button class="btn bg" style="height:30px;font-size:11px;padding:0 10px" onclick="openSheetsModal()" title="Cài đặt Google Sheets">⚙️ Sheets</button>
+      <button class="btn bg" style="height:30px;font-size:11px;padding:0 10px" onclick="openSheetsModal()" title="Cài đặt Google Sheets">⚙️ Sheets</button>
+      <button class="btn bg" style="height:30px;font-size:11px;padding:0 10px" onclick="exportCSV()">⬇ Export</button>
+    </div>
+  </div>
+  <nav>
+    <button class="tab on"  onclick="switchTab('input',this)">📋 Nhập liệu</button>
+    <button class="tab"     onclick="switchTab('kpi',this)">📊 KPI</button>
+    <button class="tab"     onclick="switchTab('analysis',this)">📈 Phân tích</button>
+    <button class="tab"     onclick="switchTab('stock',this)">📦 Tồn kho</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- DATE FILTER (global) -->
+<div class="date-filter" id="global-filter">
+  <span class="lbl">Lọc thời gian:</span>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span style="font-size:12px;color:var(--t2)">Từ</span>
+    <input type="date" class="inp" id="filter-from" style="width:140px;height:30px;font-size:12px" onchange="applyDateFilter()">
+    <span style="font-size:12px;color:var(--t2)">đến</span>
+    <input type="date" class="inp" id="filter-to" style="width:140px;height:30px;font-size:12px" onchange="applyDateFilter()">
+  </div>
+  <button class="btn bg" style="height:30px;font-size:11px;padding:0 10px" onclick="clearDateFilter()">✕ Xóa lọc</button>
+  <span id="filter-badge" style="font-size:11px;color:var(--blue);font-weight:600"></span>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+    <button class="fbtn" onclick="setQuick(0)">Hôm nay</button>
+    <button class="fbtn" onclick="setQuick(7)">7 ngày</button>
+    <button class="fbtn" onclick="setQuick(30)">30 ngày</button>
+  </div>
+</div>
+
+<!-- ===== NHẬP LIỆU ===== -->
+<div id="p-input">
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Nhập dữ liệu — mỗi dòng = 1 máy / 1 công đoạn / 1 ca</div>
+    <div style="display:grid;grid-template-columns:120px 90px 155px auto auto 90px 90px 1fr 80px;gap:8px;align-items:end" id="form-grid">
+      <div><div class="lbl" style="margin-bottom:5px">Ngày</div><input type="date" class="inp" id="f-date"></div>
+      <div><div class="lbl" style="margin-bottom:5px">Ca</div>
+        <select class="inp" id="f-shift">
+          <option value="Ngày">☀ Ngày</option>
+          <option value="Đêm">🌙 Đêm</option>
+        </select>
+      </div>
+      <div><div class="lbl" style="margin-bottom:5px">Công đoạn / Máy</div>
+        <select class="inp" id="f-stage" onchange="onStageChange()">
+          <optgroup label="── Die-cut ──"><option>DC1</option><option>DC2</option></optgroup>
+          <optgroup label="── AVI ──">
+            <option>AVI-1</option><option>AVI-2</option><option>AVI-3</option><option>AVI-4</option><option>AVI-5</option>
+          </optgroup>
+          <optgroup label="── MVI ──"><option>MVI Manual</option><option>MVI Mapping</option></optgroup>
+          <optgroup label="── Packing ──"><option>Packing Manual</option><option>Packing Mapping</option></optgroup>
+        </select>
+      </div>
+      <!-- DC luồng (ẩn với DC stage) -->
+      <div id="f-dc-wrap"><div class="lbl" style="margin-bottom:5px">Luồng DC</div>
+        <select class="inp" id="f-dc" style="width:120px">
+          <option value="DC1">🔴 DC1</option><option value="DC2">🟠 DC2</option>
+        </select>
+      </div>
+      <!-- AVI nguồn (chỉ hiện với MVI/Packing) -->
+      <div id="f-avi-wrap" style="display:none"><div class="lbl" style="margin-bottom:5px">AVI nguồn</div>
+        <select class="inp" id="f-avi-src" style="width:110px">
+          <option value="">-- Chọn --</option>
+          <option>AVI-1</option><option>AVI-2</option><option>AVI-3</option><option>AVI-4</option><option>AVI-5</option>
+        </select>
+      </div>
+      <div><div class="lbl" style="margin-bottom:5px">Input</div><input type="number" class="inp" id="f-in" placeholder="0" min="0"></div>
+      <div><div class="lbl" style="margin-bottom:5px">Output</div><input type="number" class="inp" id="f-out" placeholder="0" min="0" onkeydown="if(event.key==='Enter')addRecord()"></div>
+      <div><div class="lbl" style="margin-bottom:5px">Ghi chú</div><input type="text" class="inp" id="f-note" placeholder="Ghi chú..." onkeydown="if(event.key==='Enter')addRecord()"></div>
+      <div><div class="lbl" style="margin-bottom:5px;opacity:0">x</div>
+        <button class="btn bp" style="width:100%;justify-content:center" onclick="addRecord()">+ Thêm</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+    <span class="lbl" style="margin-right:4px">Lọc:</span>
+    <button class="fbtn on" onclick="setFilter('ALL',this)">Tất cả</button>
+    <button class="fbtn" onclick="setFilter('DC',this)">Die-cut</button>
+    <button class="fbtn" onclick="setFilter('AVI',this)">AVI</button>
+    <button class="fbtn" onclick="setFilter('MVI Manual',this)">MVI Manual</button>
+    <button class="fbtn" onclick="setFilter('MVI Mapping',this)">MVI Mapping</button>
+    <button class="fbtn" onclick="setFilter('Packing',this)">Packing</button>
+    <div style="width:1px;height:14px;background:var(--bd);margin:0 2px"></div>
+    <button class="fbtn" onclick="setFilter('Ngày',this)">☀ Ngày</button>
+    <button class="fbtn" onclick="setFilter('Đêm',this)">🌙 Đêm</button>
+    <div style="width:1px;height:14px;background:var(--bd);margin:0 2px"></div>
+    <button class="fbtn" onclick="setFilter('DC1',this)">🔴 DC1</button>
+    <button class="fbtn" onclick="setFilter('DC2',this)">🟠 DC2</button>
+  </div>
+
+  <div class="card" style="overflow:hidden">
+    <div style="padding:9px 14px;border-bottom:1.5px solid var(--bd);display:flex;align-items:center;gap:8px;background:var(--bg3)">
+      <input type="text" class="inp" id="tbl-search" placeholder="🔍 Tìm..." style="width:200px;height:30px;font-size:12px" oninput="renderTable()">
+      <span style="margin-left:auto;font-size:11px;color:var(--t3);font-weight:500" id="rec-count"></span>
+    </div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr>
+        <th>Ngày</th><th>Ca</th><th>Máy/Công đoạn</th><th>Luồng</th><th>AVI nguồn</th>
+        <th style="text-align:right">Input</th><th style="text-align:right">Output</th>
+        <th style="text-align:right">Defect</th><th style="text-align:right">Yield</th>
+        <th>Ghi chú</th><th style="width:72px"></th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ===== KPI ===== -->
+<div id="p-kpi" style="display:none">
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">KPI Mục tiêu Yield (%)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px" id="kpi-inputs"></div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Tổng quan theo công đoạn & luồng DC</div>
+    <div style="overflow-x:auto" id="summary-matrix"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;margin-bottom:14px" id="kpi-cards"></div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Yield từng máy AVI</div>
+    <div class="g5" id="avi-cards"></div>
+  </div>
+  <div class="card" style="padding:16px">
+    <div class="sec">Die-cut</div>
+    <div class="g2" id="dc-cards"></div>
+  </div>
+</div>
+
+<!-- ===== ANALYSIS ===== -->
+<div id="p-analysis" style="display:none">
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Luồng Process & Roll-up Yield</div>
+    <div style="overflow-x:auto"><div style="display:flex;align-items:stretch;gap:0;min-width:max-content;padding-bottom:4px" id="yield-flow"></div></div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Thống kê số lượng xuyên suốt (DC1 / DC2)</div>
+    <div style="overflow-x:auto" id="qty-flow"></div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Trend Output — 4 ngày gần nhất (☀/🌙)</div>
+    <div id="trend-output"></div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div class="sec">Trend Process Yield — 4 ngày gần nhất</div>
+    <div id="trend-yield"></div>
+  </div>
+  <div class="g2">
+    <div class="card" style="padding:16px"><div class="sec">Chỉ số Yield</div><div id="yield-metrics"></div></div>
+    <div class="card" style="padding:16px"><div class="sec">Sản lượng tổng</div><div id="output-metrics"></div></div>
+  </div>
+</div>
+
+<!-- ===== TỒN KHO ===== -->
+<div id="p-stock" style="display:none">
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card" style="padding:16px"><div class="sec" style="color:var(--pink)">🔴 Luồng DC1</div><div id="stock-dc1"></div></div>
+    <div class="card" style="padding:16px"><div class="sec" style="color:var(--orange)">🟠 Luồng DC2</div><div id="stock-dc2"></div></div>
+  </div>
+  <div class="card" style="overflow:hidden">
+    <div style="padding:9px 14px;border-bottom:1.5px solid var(--bd);background:var(--bg3)">
+      <div class="sec" style="margin:0;padding:0;border:0">Chi tiết theo ngày & ca & luồng DC</div>
+    </div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr>
+        <th>Ngày</th><th>Ca</th><th>Luồng</th>
+        <th style="text-align:right;color:var(--pink)">Out DC</th>
+        <th style="text-align:right;color:var(--blue)">In AVI</th>
+        <th style="text-align:right">Tồn DC→AVI</th>
+        <th style="text-align:right;color:var(--blue)">Out AVI</th>
+        <th style="text-align:right;color:var(--purple)">In MVI</th>
+        <th style="text-align:right">Tồn AVI→MVI</th>
+        <th style="text-align:right;color:var(--purple)">Out MVI</th>
+        <th style="text-align:right;color:var(--amber)">In Pack</th>
+        <th style="text-align:right">Tồn MVI→Pack</th>
+        <th style="text-align:right;color:var(--green)">Out Pack</th>
+      </tr></thead>
+      <tbody id="stock-body"></tbody>
+    </table></div>
+  </div>
+</div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeModal()">
+  <div style="background:var(--bg2);border:1.5px solid var(--bd);border-radius:16px;padding:24px;width:540px;max-width:96vw;box-shadow:var(--shadow-md)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <span style="font-size:15px;font-weight:700">Chỉnh sửa bản ghi</span>
+      <button class="btn bg" style="height:28px;padding:0 10px;font-size:12px" onclick="closeModal()">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><div class="lbl" style="margin-bottom:5px">Công đoạn</div>
+        <select class="inp" id="e-stage" onchange="onEditStageChange()">
+          <optgroup label="── Die-cut ──"><option>DC1</option><option>DC2</option></optgroup>
+          <optgroup label="── AVI ──"><option>AVI-1</option><option>AVI-2</option><option>AVI-3</option><option>AVI-4</option><option>AVI-5</option></optgroup>
+          <optgroup label="── MVI ──"><option>MVI Manual</option><option>MVI Mapping</option></optgroup>
+          <optgroup label="── Packing ──"><option>Packing Manual</option><option>Packing Mapping</option></optgroup>
+        </select>
+      </div>
+      <div id="e-dc-wrap"><div class="lbl" style="margin-bottom:5px">Luồng DC</div>
+        <select class="inp" id="e-dc"><option value="DC1">🔴 DC1</option><option value="DC2">🟠 DC2</option></select>
+      </div>
+      <div><div class="lbl" style="margin-bottom:5px">Ca</div>
+        <select class="inp" id="e-shift"><option value="Ngày">☀ Ca Ngày</option><option value="Đêm">🌙 Ca Đêm</option></select>
+      </div>
+      <div><div class="lbl" style="margin-bottom:5px">Ngày</div><input type="date" class="inp" id="e-date"></div>
+      <div id="e-avi-wrap"><div class="lbl" style="margin-bottom:5px">AVI nguồn</div>
+        <select class="inp" id="e-avi-src">
+          <option value="">-- Không chọn --</option>
+          <option>AVI-1</option><option>AVI-2</option><option>AVI-3</option><option>AVI-4</option><option>AVI-5</option>
+        </select>
+      </div>
+      <div><div class="lbl" style="margin-bottom:5px">Input</div><input type="number" class="inp" id="e-in" min="0"></div>
+      <div><div class="lbl" style="margin-bottom:5px">Output</div><input type="number" class="inp" id="e-out" min="0"></div>
+      <div><div class="lbl" style="margin-bottom:5px">Ghi chú</div><input type="text" class="inp" id="e-note"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn bg" onclick="closeModal()">Hủy</button>
+      <button class="btn bp" onclick="saveEdit()">✓ Lưu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ─────────────────────────────────────────────
+const DC_STAGES   = ['DC1','DC2'];
+const AVI_MACHINES= ['AVI-1','AVI-2','AVI-3','AVI-4','AVI-5'];
+const MVI_STAGES  = ['MVI Manual','MVI Mapping'];
+const PACK_STAGES = ['Packing Manual','Packing Mapping'];
+const MVI_PACK    = [...MVI_STAGES,...PACK_STAGES];
+
+const STAGE_META = {
+  'DC1':            {color:'#db2777',tag:'tg-dc1',  group:'DC'},
+  'DC2':            {color:'#ea580c',tag:'tg-dc2',  group:'DC'},
+  'AVI-1':          {color:'#2563eb',tag:'tg-avi',  group:'AVI'},
+  'AVI-2':          {color:'#1d4ed8',tag:'tg-avi',  group:'AVI'},
+  'AVI-3':          {color:'#1e40af',tag:'tg-avi',  group:'AVI'},
+  'AVI-4':          {color:'#1e3a8a',tag:'tg-avi',  group:'AVI'},
+  'AVI-5':          {color:'#172554',tag:'tg-avi',  group:'AVI'},
+  'MVI Manual':     {color:'#7c3aed',tag:'tg-mvi-m',  group:'MVI',kpiKey:'mviManual'},
+  'MVI Mapping':    {color:'#0d9488',tag:'tg-mvi-map',group:'MVI',kpiKey:'mviMapping'},
+  'Packing Manual': {color:'#d97706',tag:'tg-pack',   group:'Packing',kpiKey:'packing'},
+  'Packing Mapping':{color:'#b45309',tag:'tg-pack',   group:'Packing',kpiKey:'packing'},
+};
+const DEF_KPIS={dc:98,avi:95,mviManual:93,mviMapping:92,packing:98};
+const KMAP={dc:'Die-cut',avi:'AVI (5 máy)',mviManual:'MVI Manual',mviMapping:'MVI Mapping',packing:'Packing'};
+const KCOL={dc:'#db2777',avi:'#2563eb',mviManual:'#7c3aed',mviMapping:'#0d9488',packing:'#d97706'};
+
+// ── State ──────────────────────────────────────────────
+let records=[],kpis={...DEF_KPIS},filterStage='ALL',editId=null;
+let dateFrom='',dateTo='';
+let SHEETS_URL='';
+try{records=JSON.parse(localStorage.getItem('plt_v6')||'[]')}catch{}
+try{kpis={...DEF_KPIS,...JSON.parse(localStorage.getItem('plt_k6')||'{}')} }catch{}
+try{SHEETS_URL=localStorage.getItem('plt_sheets_url')||''}catch{}
+
+// ── Theme ──────────────────────────────────────────────
+let theme=localStorage.getItem('plt_theme')||'light';
+document.documentElement.setAttribute('data-theme',theme);
+function toggleTheme(){
+  theme=theme==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',theme);
+  localStorage.setItem('plt_theme',theme);
+}
+
+// ── Date filter ────────────────────────────────────────
+function applyDateFilter(){
+  dateFrom=document.getElementById('filter-from').value;
+  dateTo=document.getElementById('filter-to').value;
+  updateFilterBadge();
+  renderTable();
+  const tab=document.querySelector('.tab.on');
+  if(tab){const id=tab.onclick.toString().match(/'(\w+)'/)?.[1];
+    if(id==='kpi')renderKPI();
+    if(id==='analysis')renderAnalysis();
+    if(id==='stock')renderStock();
+  }
+}
+function clearDateFilter(){
+  dateFrom='';dateTo='';
+  document.getElementById('filter-from').value='';
+  document.getElementById('filter-to').value='';
+  updateFilterBadge();renderTable();
+}
+function setQuick(days){
+  const to=new Date(),from=new Date();
+  from.setDate(to.getDate()-days);
+  dateTo=to.toISOString().split('T')[0];
+  dateFrom=days===0?dateTo:from.toISOString().split('T')[0];
+  document.getElementById('filter-from').value=dateFrom;
+  document.getElementById('filter-to').value=dateTo;
+  updateFilterBadge();renderTable();
+  const activeTab=document.querySelector('.tab.on');
+  if(activeTab){const txt=activeTab.textContent;
+    if(txt.includes('KPI'))renderKPI();
+    if(txt.includes('Phân'))renderAnalysis();
+    if(txt.includes('Tồn'))renderStock();
+  }
+}
+function updateFilterBadge(){
+  const el=document.getElementById('filter-badge');
+  if(dateFrom||dateTo){
+    const filtered=records.filter(r=>inDateRange(r.date));
+    el.textContent=`${filtered.length} bản ghi trong khoảng`;
+  } else el.textContent='';
+}
+function inDateRange(date){
+  if(dateFrom&&date<dateFrom)return false;
+  if(dateTo&&date>dateTo)return false;
+  return true;
+}
+function filteredRecords(){return records.filter(r=>inDateRange(r.date));}
+
+// ── Google Sheets ──────────────────────────────────────
+function setSyncStatus(msg,color){
+  document.getElementById('sync-status').innerHTML=
+    `<span class="sync-dot" style="background:${color}"></span><span style="color:${color}">${msg}</span>`;
+}
+async function syncToSheets(){
+  if(!SHEETS_URL)return;
+  setSyncStatus('Đang lưu...','var(--amber)');
+  try{
+    const res=await fetch(SHEETS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'save',records})
+    });
+    const data=await res.json();
+    if(data.ok)setSyncStatus('Đã lưu ✓','var(--green)');
+    else setSyncStatus('Lỗi lưu','var(--red)');
+  }catch(e){setSyncStatus('Lỗi kết nối','var(--red)');}
+  setTimeout(()=>document.getElementById('sync-status').innerHTML='',4000);
+}
+async function loadFromSheets(){
+  if(!SHEETS_URL)return;
+  setSyncStatus('Đang tải...','var(--amber)');
+  try{
+    const res=await fetch(SHEETS_URL+'?action=load&t='+Date.now());
+    const data=await res.json();
+    if(data.records&&Array.isArray(data.records)){
+      records=data.records;
+      localStorage.setItem('plt_v6',JSON.stringify(records));
+      renderTable();updateFilterBadge();
+      setSyncStatus('Đã tải ✓','var(--green)');
+    }
+  }catch(e){setSyncStatus('Dùng dữ liệu local','var(--t3)');}
+  setTimeout(()=>document.getElementById('sync-status').innerHTML='',4000);
+}
+function configSheets(){
+  const url=prompt('Paste URL Google Apps Script của bạn:',SHEETS_URL);
+  if(url===null)return;
+  SHEETS_URL=url.trim();
+  localStorage.setItem('plt_sheets_url',SHEETS_URL);
+  if(SHEETS_URL)loadFromSheets();
+}
+
+const saveR=()=>{localStorage.setItem('plt_v6',JSON.stringify(records));syncToSheets();}
+const saveK=()=>localStorage.setItem('plt_k6',JSON.stringify(kpis));
+
+// ── Utils ──────────────────────────────────────────────
+const fmt=n=>Number(n).toLocaleString('vi-VN');
+const pct=(v,d=2)=>Number(v).toFixed(d)+'%';
+const today=()=>new Date().toISOString().split('T')[0];
+const calcY=(i,o)=>i>0?(o/i)*100:0;
+const yCls=y=>y>=95?'good':y>=90?'warn':'bad';
+
+function agg(stages,dc,recs){
+  const src=recs||filteredRecords();
+  const rs=src.filter(r=>{
+    const ms=stages.includes(r.stage);
+    const md=!dc||(DC_STAGES.includes(r.stage)?r.stage===dc:r.dc===dc);
+    return ms&&md;
+  });
+  const ti=rs.reduce((s,r)=>s+r.input,0),to=rs.reduce((s,r)=>s+r.output,0);
+  return{ti,to,def:ti-to,yld:calcY(ti,to),n:rs.length};
+}
+function aggDate(stages,date,dc,shift){
+  const rs=records.filter(r=>
+    stages.includes(r.stage)&&r.date===date&&
+    (!dc||(DC_STAGES.includes(r.stage)?r.stage===dc:r.dc===dc))&&
+    (!shift||r.shift===shift)
+  );
+  const ti=rs.reduce((s,r)=>s+r.input,0),to=rs.reduce((s,r)=>s+r.output,0);
+  return{ti,to,def:ti-to,yld:calcY(ti,to)};
+}
+function rollupYield(dc){
+  const fr=filteredRecords();
+  const d=s=>agg(s,dc,fr);
+  const yDC  =d(DC_STAGES).ti>0?d(DC_STAGES).to/d(DC_STAGES).ti:1;
+  const yAVI =d(AVI_MACHINES).ti>0?d(AVI_MACHINES).to/d(AVI_MACHINES).ti:1;
+  const mvis =[d(['MVI Manual']),d(['MVI Mapping'])].filter(s=>s.ti>0);
+  const yMVI =mvis.length?mvis.reduce((a,s)=>a+s.to/s.ti,0)/mvis.length:1;
+  const yPack=d(PACK_STAGES).ti>0?d(PACK_STAGES).to/d(PACK_STAGES).ti:1;
+  return yDC*yAVI*yMVI*yPack*100;
+}
+function stockBal(dc){
+  const fr=filteredRecords();
+  const a=s=>agg(s,dc,fr);
+  return{
+    dc2avi:  a(DC_STAGES).to  - a(AVI_MACHINES).ti,
+    avi2mvi: a(AVI_MACHINES).to - a(MVI_STAGES).ti,
+    mvi2pack:a(MVI_STAGES).to  - a(PACK_STAGES).ti,
+    finished:a(PACK_STAGES).to,
+  };
+}
+
+// ── Tags / HTML helpers ────────────────────────────────
+const tagH =s=>`<span class="tag ${STAGE_META[s]?.tag||''}">${s}</span>`;
+const shTag=sh=>sh==='Đêm'?`<span class="tag tg-night">🌙 Đêm</span>`:`<span class="tag tg-day">☀ Ngày</span>`;
+const dcTag=dc=>dc==='DC2'?`<span class="tag tg-dc2" style="font-size:9px">DC2</span>`:`<span class="tag tg-dc1" style="font-size:9px">DC1</span>`;
+function ypH(v,kpi){
+  if(v==null)return`<span style="color:var(--t3)" class="mono">—</span>`;
+  const d=kpi!=null?v-kpi:null;
+  const c=d!=null?(d>=0?'good':d>=-2?'warn':'bad'):yCls(v);
+  return`<span class="mono ${c}" style="font-weight:700;font-size:13px">${pct(v)}</span>`;
+}
+const mrow=(l,v,cls)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)"><span style="font-size:13px;color:var(--t2)">${l}</span><span class="mono ${cls||''}" style="font-size:13px;font-weight:600;${cls?'':'color:var(--t1)'}">${v}</span></div>`;
+
+// ── Form logic ─────────────────────────────────────────
+function onStageChange(){
+  const s=document.getElementById('f-stage').value;
+  const isDC=DC_STAGES.includes(s);
+  const isMVI_Pack=MVI_PACK.includes(s);
+  document.getElementById('f-dc-wrap').style.display=isDC?'none':'block';
+  document.getElementById('f-avi-wrap').style.display=isMVI_Pack?'block':'none';
+}
+function onEditStageChange(){
+  const s=document.getElementById('e-stage').value;
+  const isDC=DC_STAGES.includes(s);
+  const isMVI_Pack=MVI_PACK.includes(s);
+  document.getElementById('e-dc-wrap').style.display=isDC?'none':'block';
+  document.getElementById('e-avi-wrap').style.display=isMVI_Pack?'block':'none';
+}
+
+// ── Init ───────────────────────────────────────────────
+document.getElementById('hdr-date').textContent=
+  new Date().toLocaleDateString('vi-VN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('f-date').value=today();
+onStageChange();
+
+// ── Tabs ───────────────────────────────────────────────
+function switchTab(tab,btn){
+  ['input','kpi','analysis','stock'].forEach(t=>document.getElementById('p-'+t).style.display='none');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+tab).style.display='';btn.classList.add('on');
+  if(tab==='kpi')renderKPI();
+  if(tab==='analysis')renderAnalysis();
+  if(tab==='stock')renderStock();
+}
+function setFilter(s,btn){
+  filterStage=s;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderTable();
+}
+
+// ── CRUD ───────────────────────────────────────────────
+function addRecord(){
+  const stage =document.getElementById('f-stage').value;
+  const date  =document.getElementById('f-date').value;
+  const shift =document.getElementById('f-shift').value;
+  const isDC  =DC_STAGES.includes(stage);
+  const dc    =isDC?stage:document.getElementById('f-dc').value;
+  const aviSrc=MVI_PACK.includes(stage)?document.getElementById('f-avi-src').value:'';
+  const input =parseInt(document.getElementById('f-in').value)||0;
+  const output=parseInt(document.getElementById('f-out').value)||0;
+  const note  =document.getElementById('f-note').value.trim();
+  if(!date)return alert('Chọn ngày!');
+  if(input<=0)return alert('Input phải > 0');
+  if(output>input)return alert('Output không được > Input');
+  records.push({id:Date.now(),stage,date,shift,dc,aviSrc,input,output,note});
+  saveR();renderTable();updateFilterBadge();
+  // Giữ nguyên ngày, ca, dc, stage — chỉ reset số liệu
+  document.getElementById('f-in').value='';
+  document.getElementById('f-out').value='';
+  document.getElementById('f-note').value='';
+}
+
+function renderTable(){
+  const q=(document.getElementById('tbl-search').value||'').toLowerCase();
+  const list=records.filter(r=>{
+    if(!inDateRange(r.date))return false;
+    const ms=filterStage==='ALL'
+      ||(filterStage==='DC'&&DC_STAGES.includes(r.stage))
+      ||(filterStage==='AVI'&&AVI_MACHINES.includes(r.stage))
+      ||(filterStage==='Packing'&&PACK_STAGES.includes(r.stage))
+      ||r.stage===filterStage||r.shift===filterStage||r.dc===filterStage;
+    const mq=!q||r.stage.toLowerCase().includes(q)||r.date.includes(q)
+      ||(r.shift||'').toLowerCase().includes(q)||(r.dc||'').toLowerCase().includes(q)
+      ||(r.aviSrc||'').toLowerCase().includes(q)||(r.note||'').toLowerCase().includes(q);
+    return ms&&mq;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+
+  document.getElementById('rec-count').textContent=list.length+' bản ghi';
+  const tb=document.getElementById('tbl-body');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="11" style="padding:40px;text-align:center;color:var(--t3)">📭 Chưa có dữ liệu</td></tr>`;return;}
+  tb.innerHTML=list.map(r=>{
+    const yld=calcY(r.input,r.output);
+    const idx=records.findIndex(x=>x.id===r.id);
+    return`<tr>
+      <td class="mono" style="font-size:11px;color:var(--t1);font-weight:500">${r.date}</td>
+      <td>${shTag(r.shift)}</td>
+      <td>${tagH(r.stage)}</td>
+      <td>${r.dc?dcTag(r.dc):'—'}</td>
+      <td style="font-size:11px;color:var(--t3)">${r.aviSrc||'—'}</td>
+      <td class="mono" style="text-align:right;font-weight:500">${fmt(r.input)}</td>
+      <td class="mono" style="text-align:right;font-weight:500">${fmt(r.output)}</td>
+      <td class="mono" style="text-align:right;color:var(--red)">${fmt(r.input-r.output)}</td>
+      <td style="text-align:right">${ypH(yld)}</td>
+      <td style="font-size:11px;color:var(--t3);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.note||'—'}</td>
+      <td><div style="display:flex;gap:4px;justify-content:center">
+        <button class="btn be" onclick="openEdit(${idx})">✏</button>
+        <button class="btn bdel" onclick="delRec(${idx})">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function delRec(idx){if(!confirm('Xóa bản ghi này?'))return;records.splice(idx,1);saveR();renderTable();updateFilterBadge();}
+function openEdit(idx){
+  editId=records[idx].id;const r=records[idx];
+  document.getElementById('e-stage').value=r.stage;
+  document.getElementById('e-shift').value=r.shift||'Ngày';
+  document.getElementById('e-date').value=r.date;
+  document.getElementById('e-in').value=r.input;
+  document.getElementById('e-out').value=r.output;
+  document.getElementById('e-note').value=r.note||'';
+  document.getElementById('e-dc').value=r.dc||'DC1';
+  document.getElementById('e-avi-src').value=r.aviSrc||'';
+  onEditStageChange();
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('edit-modal').classList.remove('open');editId=null;}
+function saveEdit(){
+  const inp=parseInt(document.getElementById('e-in').value)||0;
+  const out=parseInt(document.getElementById('e-out').value)||0;
+  if(out>inp)return alert('Output không được > Input');
+  const idx=records.findIndex(r=>r.id===editId);if(idx<0)return;
+  const stage=document.getElementById('e-stage').value;
+  const isDC=DC_STAGES.includes(stage);
+  records[idx]={...records[idx],
+    stage,shift:document.getElementById('e-shift').value,
+    date:document.getElementById('e-date').value,
+    dc:isDC?stage:document.getElementById('e-dc').value,
+    aviSrc:MVI_PACK.includes(stage)?document.getElementById('e-avi-src').value:'',
+    input:inp,output:out,note:document.getElementById('e-note').value.trim()
+  };
+  saveR();closeModal();renderTable();
+}
+
+// ── KPI Panel ──────────────────────────────────────────
+function renderKPI(){
+  document.getElementById('kpi-inputs').innerHTML=Object.keys(DEF_KPIS).map(k=>`
+    <div>
+      <div class="lbl" style="margin-bottom:5px;color:${KCOL[k]}">${KMAP[k]}</div>
+      <div style="position:relative">
+        <input type="number" class="inp" style="font-family:'IBM Plex Mono',monospace;padding-right:22px"
+          min="0" max="100" step="0.1" value="${kpis[k]}"
+          onchange="kpis['${k}']=parseFloat(this.value)||0;saveK();renderKPI()">
+        <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:11px;font-family:'IBM Plex Mono',monospace">%</span>
+      </div>
+    </div>`).join('');
+
+  // Summary matrix — Packing gộp (không chia Manual/Mapping)
+  const matStages=[
+    {label:'AVI',       stages:AVI_MACHINES},
+    {label:'MVI Manual',stages:['MVI Manual']},
+    {label:'MVI Mapping',stages:['MVI Mapping']},
+    {label:'Packing',   stages:PACK_STAGES},  // gộp Manual+Mapping
+  ];
+  const DCS=['DC1','DC2'];
+  let mat=`<table style="border-collapse:collapse;width:100%"><thead>
+    <tr>
+      <th class="sum-th" rowspan="2" style="background:#1e3a8a;color:#fff;min-width:110px;text-align:left">Công đoạn</th>
+      ${matStages.map(s=>`<th class="sum-th" colspan="2" style="background:#1e40af;color:#fff">${s.label}</th>`).join('')}
+    </tr>
+    <tr>${matStages.map(()=>DCS.map(dc=>`<th class="sum-th" style="background:#2563eb;color:#fff;min-width:75px">${dc}</th>`).join('')).join('')}</tr>
+  </thead><tbody>`;
+  // Output row
+  mat+=`<tr><td class="sum-td" style="font-weight:600;background:var(--bg3);text-align:left">Output (pcs)</td>`;
+  matStages.forEach(s=>DCS.forEach(dc=>{const st=agg(s.stages,dc);mat+=`<td class="sum-td">${st.ti>0?fmt(st.to):'—'}</td>`;}));
+  mat+=`</tr>`;
+  // Yield row
+  mat+=`<tr><td class="sum-td" style="font-weight:600;background:var(--bg3);text-align:left">Yield (%)</td>`;
+  matStages.forEach(s=>DCS.forEach(dc=>{
+    const st=agg(s.stages,dc);
+    mat+=`<td class="sum-td">${st.ti>0?`<span class="mono ${yCls(st.yld)}" style="font-weight:700">${pct(st.yld,1)}</span>`:'—'}</td>`;
+  }));
+  mat+=`</tr></tbody></table>`;
+  document.getElementById('summary-matrix').innerHTML=mat;
+
+  // KPI cards
+  const groups=[
+    {label:'Die-cut',st:agg(DC_STAGES),kpi:kpis.dc,color:'#db2777'},
+    {label:'AVI (5 máy)',st:agg(AVI_MACHINES),kpi:kpis.avi,color:'#2563eb'},
+    {label:'MVI Manual',st:agg(['MVI Manual']),kpi:kpis.mviManual,color:'#7c3aed'},
+    {label:'MVI Mapping',st:agg(['MVI Mapping']),kpi:kpis.mviMapping,color:'#0d9488'},
+    {label:'Packing',st:agg(PACK_STAGES),kpi:kpis.packing,color:'#d97706'},
+  ];
+  document.getElementById('kpi-cards').innerHTML=groups.map(({label,st,kpi,color})=>{
+    const has=st.ti>0,diff=has?st.yld-kpi:0;
+    const sc=diff>=0?'good':diff>=-2?'warn':'bad';
+    const scC=sc==='good'?'var(--green)':sc==='warn'?'var(--amber)':'var(--red)';
+    const scBg=sc==='good'?'var(--greenli)':sc==='warn'?'var(--amberli)':'var(--redli)';
+    return`<div class="kpi-card">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${color};border-radius:12px 12px 0 0"></div>
+      <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;margin-top:4px">${label}</div>
+      <div class="mono" style="font-size:22px;font-weight:700;color:var(--t1);line-height:1;margin-bottom:5px">${has?pct(st.yld):'—'}</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t3);margin-bottom:5px">
+        <span>KPI: ${pct(kpi)}</span>
+        ${has?`<span class="mono" style="font-size:10px;padding:2px 6px;border-radius:4px;background:${scBg};color:${scC};font-weight:700">${diff>=0?'+':''}${diff.toFixed(2)}%</span>`:''}
+      </div>
+      <div class="mono" style="font-size:11px;color:var(--t3)">${fmt(st.ti)} → ${fmt(st.to)}</div>
+    </div>`;
+  }).join('');
+
+  // AVI per machine
+  document.getElementById('avi-cards').innerHTML=AVI_MACHINES.map(m=>{
+    const st=agg([m]);const has=st.ti>0;const col=STAGE_META[m].color;
+    const diff=has?st.yld-kpis.avi:0;const sc=diff>=0?'good':diff>=-2?'warn':'bad';
+    return`<div style="background:var(--bg3);border:1.5px solid var(--bd);border-radius:10px;padding:12px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:10px;font-weight:700;color:${col};text-transform:uppercase;margin-bottom:5px">${m}</div>
+      <div class="mono ${has?sc:''}" style="font-size:19px;font-weight:700;margin-bottom:3px">${has?pct(st.yld):'—'}</div>
+      <div class="mono" style="font-size:10px;color:var(--t3)">${fmt(st.ti)} → ${fmt(st.to)}</div>
+      <div style="margin-top:7px;height:4px;background:var(--bd2);border-radius:2px">
+        <div style="height:100%;background:${col};border-radius:2px;width:${has?Math.min(st.yld,100):0}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // DC cards
+  document.getElementById('dc-cards').innerHTML=DC_STAGES.map(m=>{
+    const st=agg([m]);const has=st.ti>0;const col=STAGE_META[m].color;
+    const diff=has?st.yld-kpis.dc:0;const sc=diff>=0?'good':diff>=-2?'warn':'bad';
+    return`<div style="background:var(--bg3);border:1.5px solid var(--bd);border-radius:10px;padding:14px;box-shadow:var(--shadow)">
+      <div style="font-size:11px;font-weight:700;color:${col};text-transform:uppercase;margin-bottom:8px">${m}</div>
+      <div class="mono ${has?sc:''}" style="font-size:22px;font-weight:700;margin-bottom:4px">${has?pct(st.yld):'—'}</div>
+      <div class="mono" style="font-size:11px;color:var(--t3);margin-bottom:8px">${fmt(st.ti)} → ${fmt(st.to)} <span style="color:var(--red)">(−${fmt(st.def)})</span></div>
+      <div style="height:5px;background:var(--bd2);border-radius:3px">
+        <div style="height:100%;background:${col};border-radius:3px;width:${has?Math.min(st.yld,100):0}%"></div>
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-top:5px">KPI: ${pct(kpis.dc)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Analysis ───────────────────────────────────────────
+function getLast4Dates(){
+  return[...new Set(filteredRecords().map(r=>r.date))].sort().reverse().slice(0,4).reverse();
+}
+
+function renderAnalysis(){
+  const ru1=rollupYield('DC1'),ru2=rollupYield('DC2'),ruAll=rollupYield(null);
+  const a=s=>agg(s);
+
+  // Flow
+  const flowItems=[
+    {label:'DC1+DC2',stages:DC_STAGES,color:'#db2777'},
+    {label:'AVI',stages:AVI_MACHINES,color:'#2563eb'},
+    {label:'MVI Manual',stages:['MVI Manual'],color:'#7c3aed'},
+    {label:'MVI Mapping',stages:['MVI Mapping'],color:'#0d9488'},
+    {label:'Packing',stages:PACK_STAGES,color:'#d97706'},
+  ];
+  document.getElementById('yield-flow').innerHTML=
+    flowItems.slice(0,2).map(f=>{const st=a(f.stages);const has=st.ti>0;
+      return`<div class="flow-box" style="border-color:${f.color}44">
+        <div style="font-size:9px;color:${f.color};font-weight:700;text-transform:uppercase;margin-bottom:3px">${f.label}</div>
+        <div class="mono ${has?yCls(st.yld):''}" style="font-size:17px;font-weight:700">${has?pct(st.yld):'—'}</div>
+        <div class="mono" style="font-size:9px;color:var(--t3);margin-top:2px">${fmt(st.ti)}→${fmt(st.to)}</div>
+      </div><div style="display:flex;align-items:center;padding:0 6px;color:var(--t3);font-size:16px">→</div>`;
+    }).join('')+
+    `<div style="display:flex;flex-direction:column;gap:6px">`+
+    flowItems.slice(2,4).map(f=>{const st=a(f.stages);const has=st.ti>0;
+      return`<div class="flow-box" style="border-color:${f.color}44;min-width:112px">
+        <div style="font-size:9px;color:${f.color};font-weight:700;text-transform:uppercase;margin-bottom:3px">${f.label}</div>
+        <div class="mono ${has?yCls(st.yld):''}" style="font-size:14px;font-weight:700">${has?pct(st.yld):'—'}</div>
+        <div class="mono" style="font-size:9px;color:var(--t3);margin-top:2px">${fmt(st.ti)}→${fmt(st.to)}</div>
+      </div>`;
+    }).join('')+`</div>`+
+    `<div style="display:flex;align-items:center;padding:0 6px;color:var(--t3);font-size:16px">→</div>`+
+    (()=>{const f=flowItems[4];const st=a(f.stages);const has=st.ti>0;
+      return`<div class="flow-box" style="border-color:${f.color}44">
+        <div style="font-size:9px;color:${f.color};font-weight:700;text-transform:uppercase;margin-bottom:3px">${f.label}</div>
+        <div class="mono ${has?yCls(st.yld):''}" style="font-size:17px;font-weight:700">${has?pct(st.yld):'—'}</div>
+        <div class="mono" style="font-size:9px;color:var(--t3);margin-top:2px">${fmt(st.ti)}→${fmt(st.to)}</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:0 6px;color:var(--t3);font-size:16px">=</div>
+      <div class="flow-box" style="border-color:rgba(22,163,74,.4);background:var(--greenli)">
+        <div style="font-size:9px;color:var(--green);font-weight:700;text-transform:uppercase;margin-bottom:3px">Roll-up</div>
+        <div class="mono good" style="font-size:17px;font-weight:700">${pct(ruAll)}</div>
+        <div style="font-size:9px;color:var(--t3);margin-top:2px">DC×AVI×MVI×Pack</div>
+      </div>`;
+    })();
+
+  // Qty flow table — DC1/DC2
+  const qtyRows=[
+    {label:'Die-cut',  stages:DC_STAGES,     col:'#db2777'},
+    {label:'AVI',      stages:AVI_MACHINES,  col:'#2563eb'},
+    {label:'MVI Manual',stages:['MVI Manual'],col:'#7c3aed'},
+    {label:'MVI Mapping',stages:['MVI Mapping'],col:'#0d9488'},
+    {label:'Packing',  stages:PACK_STAGES,   col:'#d97706'},
+  ];
+  document.getElementById('qty-flow').innerHTML=`<table style="border-collapse:collapse;width:100%">
+    <thead><tr>
+      <th class="sum-th" style="text-align:left">Công đoạn</th>
+      <th class="sum-th" colspan="3" style="background:var(--pinkli);color:var(--pink)">🔴 Luồng DC1</th>
+      <th class="sum-th" colspan="3" style="background:var(--orangeli);color:var(--orange)">🟠 Luồng DC2</th>
+    </tr>
+    <tr>
+      <th class="sum-th" style="text-align:left">—</th>
+      <th class="sum-th">Input</th><th class="sum-th">Output</th><th class="sum-th">Yield</th>
+      <th class="sum-th">Input</th><th class="sum-th">Output</th><th class="sum-th">Yield</th>
+    </tr></thead>
+    <tbody>
+    ${qtyRows.map(({label,stages,col})=>{
+      const s1=agg(stages,'DC1'),s2=agg(stages,'DC2');
+      return`<tr>
+        <td class="sum-td" style="text-align:left;font-weight:600;color:${col}">${label}</td>
+        <td class="sum-td">${s1.ti>0?fmt(s1.ti):'—'}</td><td class="sum-td">${s1.ti>0?fmt(s1.to):'—'}</td>
+        <td class="sum-td">${s1.ti>0?`<span class="mono ${yCls(s1.yld)}" style="font-weight:700">${pct(s1.yld,1)}</span>`:'—'}</td>
+        <td class="sum-td">${s2.ti>0?fmt(s2.ti):'—'}</td><td class="sum-td">${s2.ti>0?fmt(s2.to):'—'}</td>
+        <td class="sum-td">${s2.ti>0?`<span class="mono ${yCls(s2.yld)}" style="font-weight:700">${pct(s2.yld,1)}</span>`:'—'}</td>
+      </tr>`;
+    }).join('')}
+    <tr style="background:var(--bg3)">
+      <td class="sum-td" style="text-align:left;font-weight:700">Roll-up Yield</td>
+      <td class="sum-td" colspan="3"><span class="mono good" style="font-weight:700">${pct(ru1)}</span></td>
+      <td class="sum-td" colspan="3"><span class="mono good" style="font-weight:700">${pct(ru2)}</span></td>
+    </tr></tbody></table>`;
+
+  // Trend output
+  const dates=getLast4Dates();
+  const tEl=document.getElementById('trend-output');
+  if(!dates.length){tEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">📭 Chưa có dữ liệu</div>';}
+  else{
+    const tGroups=[
+      {label:'Die-cut',stages:DC_STAGES,color:'#db2777'},
+      {label:'AVI',stages:AVI_MACHINES,color:'#2563eb'},
+      {label:'MVI Manual',stages:['MVI Manual'],color:'#7c3aed'},
+      {label:'MVI Mapping',stages:['MVI Mapping'],color:'#0d9488'},
+      {label:'Packing',stages:PACK_STAGES,color:'#d97706'},
+    ];
+    const legend=`<div style="display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap;font-size:11px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--amber);border-radius:2px;display:inline-block"></span>Ca Ngày</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--purple);border-radius:2px;display:inline-block"></span>Ca Đêm</span>
+    </div>`;
+    const charts=tGroups.map(g=>{
+      const maxV=Math.max(...dates.map(d=>{
+        const dy=filteredRecords().filter(r=>g.stages.includes(r.stage)&&r.date===d&&r.shift==='Ngày').reduce((s,r)=>s+r.output,0);
+        const nt=filteredRecords().filter(r=>g.stages.includes(r.stage)&&r.date===d&&r.shift==='Đêm').reduce((s,r)=>s+r.output,0);
+        return Math.max(dy,nt);
+      }),1);
+      const W=Math.max(dates.length*80+50,220),H=100;
+      let svg=`<svg viewBox="0 0 ${W} ${H+30}" width="100%" style="overflow:visible">`;
+      for(let i=0;i<=2;i++){const y=6+H*(1-i/2);svg+=`<line x1="28" y1="${y}" x2="${W-4}" y2="${y}" stroke="var(--bd)" stroke-width="1"/><text x="24" y="${y+3}" text-anchor="end" font-size="8" fill="var(--t3)">${Math.round(maxV*i/2)}</text>`;}
+      dates.forEach((d,i)=>{
+        const x=34+i*((W-38)/Math.max(dates.length,1));
+        const dy=filteredRecords().filter(r=>g.stages.includes(r.stage)&&r.date===d&&r.shift==='Ngày').reduce((s,r)=>s+r.output,0);
+        const nt=filteredRecords().filter(r=>g.stages.includes(r.stage)&&r.date===d&&r.shift==='Đêm').reduce((s,r)=>s+r.output,0);
+        [[dy,'#d97706'],[nt,'#7c3aed']].forEach(([v,col],j)=>{
+          const bh=v>0?Math.max(2,(v/maxV)*H):0;const bx=x+j*18,by=6+H-bh;
+          svg+=`<rect x="${bx}" y="${by}" width="15" height="${bh}" rx="2" fill="${col}" opacity="0.85"/>`;
+          if(v>0)svg+=`<text x="${bx+7}" y="${by-3}" text-anchor="middle" font-size="8" fill="${col}">${fmt(v)}</text>`;
+        });
+        svg+=`<text x="${x+16}" y="${H+20}" text-anchor="middle" font-size="8" fill="var(--t3)">${d.slice(5)}</text>`;
+      });
+      svg+=`</svg>`;
+      return`<div><div style="font-size:11px;color:var(--t2);font-weight:600;margin-bottom:4px">${g.label}</div>${svg}</div>`;
+    }).join('');
+    tEl.innerHTML=legend+`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px">${charts}</div>`;
+  }
+
+  // Trend yield
+  const tyEl=document.getElementById('trend-yield');
+  if(dates.length<2){tyEl.innerHTML='<div style="padding:20px;text-align:center;color:var(--t3)">📭 Cần ít nhất 2 ngày</div>';}
+  else{
+    const yGroups=[
+      {label:'Die-cut',stages:DC_STAGES,color:'#db2777'},
+      {label:'AVI',stages:AVI_MACHINES,color:'#2563eb'},
+      {label:'MVI Manual',stages:['MVI Manual'],color:'#7c3aed'},
+      {label:'MVI Mapping',stages:['MVI Mapping'],color:'#0d9488'},
+      {label:'Packing',stages:PACK_STAGES,color:'#d97706'},
+    ];
+    const W=Math.max(dates.length*120+80,400),H=150;
+    let svg=`<svg viewBox="0 0 ${W} ${H+40}" width="100%" style="overflow:visible">`;
+    for(let i=0;i<=5;i++){const y=10+H*(1-i/5);const val=80+i*4;
+      svg+=`<line x1="36" y1="${y}" x2="${W-8}" y2="${y}" stroke="var(--bd)" stroke-width="1"/><text x="32" y="${y+3}" text-anchor="end" font-size="9" fill="var(--t3)">${val}%</text>`;}
+    yGroups.forEach(g=>{
+      const pts=dates.map((d,i)=>{
+        const rs=filteredRecords().filter(r=>g.stages.includes(r.stage)&&r.date===d);
+        const ti=rs.reduce((s,r)=>s+r.input,0),to=rs.reduce((s,r)=>s+r.output,0);
+        return{x:44+i*((W-52)/Math.max(dates.length-1,1)),y:ti>0?calcY(ti,to):null};
+      }).filter(p=>p.y!==null);
+      if(!pts.length)return;
+      if(pts.length>1){
+        const path=pts.map((p,i)=>{const py=10+H*(1-(Math.max(80,Math.min(100,p.y))-80)/20);return(i===0?'M':'L')+p.x+','+py}).join(' ');
+        svg+=`<path d="${path}" stroke="${g.color}" stroke-width="2" fill="none" opacity="0.9"/>`;
+      }
+      pts.forEach(p=>{const py=10+H*(1-(Math.max(80,Math.min(100,p.y))-80)/20);
+        svg+=`<circle cx="${p.x}" cy="${py}" r="4" fill="${g.color}" stroke="var(--bg2)" stroke-width="1.5"/>`;
+        svg+=`<text x="${p.x}" y="${py-8}" text-anchor="middle" font-size="9" fill="${g.color}" font-weight="600">${pct(p.y,1)}</text>`;
+      });
+    });
+    dates.forEach((d,i)=>{const x=44+i*((W-52)/Math.max(dates.length-1,1));
+      svg+=`<text x="${x}" y="${H+26}" text-anchor="middle" font-size="9" fill="var(--t3)">${d.slice(5)}</text>`;});
+    svg+=`</svg>`;
+    const legend=yGroups.map(g=>`<span style="display:flex;align-items:center;gap:4px;font-size:11px"><span style="width:18px;height:2px;background:${g.color};display:inline-block;border-radius:1px"></span>${g.label}</span>`).join('');
+    tyEl.innerHTML=`<div style="display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap">${legend}</div>${svg}`;
+  }
+
+  // Metrics
+  const dcSt=a(DC_STAGES),aviSt=a(AVI_MACHINES),mviMSt=a(['MVI Manual']),mviMapSt=a(['MVI Mapping']),packSt=a(PACK_STAGES);
+  const mviAvg=(()=>{const ys=[mviMSt,mviMapSt].filter(s=>s.ti>0).map(s=>s.yld);return ys.length?ys.reduce((x,y)=>x+y)/ys.length:null;})();
+  document.getElementById('yield-metrics').innerHTML=[
+    ['Roll-up (tất cả)',`<span class="mono good" style="font-weight:700">${pct(ruAll)}</span>`],
+    ['Roll-up DC1',`<span class="mono good" style="font-weight:700">${pct(ru1)}</span>`],
+    ['Roll-up DC2',`<span class="mono good" style="font-weight:700">${pct(ru2)}</span>`],
+    ['Yield Die-cut',dcSt.ti>0?ypH(dcSt.yld,kpis.dc):'—'],
+    ['Yield AVI',aviSt.ti>0?ypH(aviSt.yld,kpis.avi):'—'],
+    ['Yield MVI Manual',mviMSt.ti>0?ypH(mviMSt.yld,kpis.mviManual):'—'],
+    ['Yield MVI Mapping',mviMapSt.ti>0?ypH(mviMapSt.yld,kpis.mviMapping):'—'],
+    ['Yield MVI avg',mviAvg!=null?ypH(mviAvg,null):'—'],
+    ['Yield Packing',packSt.ti>0?ypH(packSt.yld,kpis.packing):'—'],
+  ].map(([l,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd)"><span style="font-size:13px;color:var(--t2)">${l}</span><span>${v}</span></div>`).join('');
+
+  const totDef=[dcSt,aviSt,mviMSt,mviMapSt,packSt].reduce((s,r)=>s+r.def,0);
+  const fr=filteredRecords();
+  document.getElementById('output-metrics').innerHTML=[
+    ['Output cuối (Packing)',packSt.to>0?fmt(packSt.to)+' pcs':'—','good'],
+    ['Input đầu (DC)',dcSt.ti>0?fmt(dcSt.ti)+' pcs':'—',''],
+    ['Tổng Defect',fmt(totDef)+' pcs',totDef>0?'bad':''],
+    ['Tổng bản ghi (filter)',String(fr.length),''],
+    ['Số ngày SX',String(new Set(fr.map(r=>r.date)).size),''],
+    ['Ca Ngày / Ca Đêm',fr.filter(r=>r.shift==='Ngày').length+' / '+fr.filter(r=>r.shift==='Đêm').length,''],
+  ].map(([l,v,c])=>mrow(l,`<span class="mono ${c}" style="font-size:13px;font-weight:600;${c?'':'color:var(--t1)'}">${v}</span>`,'')).join('');
+}
+
+// ── Stock Panel ────────────────────────────────────────
+function renderStock(){
+  ['DC1','DC2'].forEach(dc=>{
+    const bal=stockBal(dc);
+    const sc=v=>v<0?'bad':v===0?'warn':'good';
+    document.getElementById('stock-'+dc.toLowerCase()).innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        ${[
+          {label:'Tồn DC→AVI',val:bal.dc2avi,desc:'Out DC − In AVI'},
+          {label:'Tồn AVI→MVI',val:bal.avi2mvi,desc:'Out AVI − In MVI'},
+          {label:'Tồn MVI→Pack',val:bal.mvi2pack,desc:'Out MVI − In Pack'},
+          {label:'Thành phẩm',val:bal.finished,desc:'Out Packing'},
+        ].map(({label,val,desc})=>`
+          <div style="background:var(--bg3);border:1.5px solid var(--bd);border-radius:8px;padding:12px;box-shadow:var(--shadow)">
+            <div class="lbl" style="margin-bottom:5px">${label}</div>
+            <div class="mono ${sc(val)}" style="font-size:18px;font-weight:700;margin-bottom:2px">${fmt(val)} pcs</div>
+            <div style="font-size:10px;color:var(--t3)">${desc}</div>
+          </div>`).join('')}
+      </div>
+      ${(bal.dc2avi<0||bal.avi2mvi<0||bal.mvi2pack<0)?`<div style="padding:9px 12px;background:var(--redli);border:1.5px solid #fecaca;border-radius:8px;font-size:12px;color:var(--red);font-weight:500">⚠️ Tồn âm — kiểm tra lại dữ liệu</div>`:``}`;
+  });
+
+  const keys=[...new Set(records.filter(r=>inDateRange(r.date)).map(r=>r.date+'|'+r.shift+'|'+(r.dc||'')))].sort();
+  const sb=document.getElementById('stock-body');
+  if(!keys.length){sb.innerHTML=`<tr><td colspan="13" style="padding:30px;text-align:center;color:var(--t3)">📭 Chưa có dữ liệu</td></tr>`;return;}
+  sb.innerHTML=keys.map(k=>{
+    const [date,shift,dc]=k.split('|');
+    if(!dc)return'';
+    const f=s=>aggDate(s,date,dc,shift);
+    const oDC=f(DC_STAGES).to,iAVI=f(AVI_MACHINES).ti,oAVI=f(AVI_MACHINES).to;
+    const iMVI=f(MVI_STAGES).ti,oMVI=f(MVI_STAGES).to;
+    const iPack=f(PACK_STAGES).ti,oPack=f(PACK_STAGES).to;
+    const sc=v=>v<0?'color:var(--red);font-weight:700':v===0?'color:var(--t3)':'color:var(--green);font-weight:700';
+    return`<tr>
+      <td class="mono" style="font-size:11px;color:var(--t1);font-weight:500">${date}</td>
+      <td>${shTag(shift)}</td><td>${dcTag(dc)}</td>
+      <td class="mono" style="text-align:right">${fmt(oDC)}</td>
+      <td class="mono" style="text-align:right">${fmt(iAVI)}</td>
+      <td class="mono" style="text-align:right;${sc(oDC-iAVI)}">${fmt(oDC-iAVI)}</td>
+      <td class="mono" style="text-align:right">${fmt(oAVI)}</td>
+      <td class="mono" style="text-align:right">${fmt(iMVI)}</td>
+      <td class="mono" style="text-align:right;${sc(oAVI-iMVI)}">${fmt(oAVI-iMVI)}</td>
+      <td class="mono" style="text-align:right">${fmt(oMVI)}</td>
+      <td class="mono" style="text-align:right">${fmt(iPack)}</td>
+      <td class="mono" style="text-align:right;${sc(oMVI-iPack)}">${fmt(oMVI-iPack)}</td>
+      <td class="mono" style="text-align:right;color:var(--green);font-weight:700">${fmt(oPack)}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+}
+
+// ── Export ─────────────────────────────────────────────
+function exportCSV(){
+  const h=['id','stage','dc','aviSrc','date','shift','input','output','defect','yield_%','note'];
+  const rows=filteredRecords().map(r=>[r.id,r.stage,r.dc||'',r.aviSrc||'',r.date,r.shift||'',
+    r.input,r.output,r.input-r.output,calcY(r.input,r.output).toFixed(2),r.note||''].join(','));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h.join(','),...rows].join('\n'));
+  a.download='production-'+today()+'.csv';a.click();
+}
+
+renderTable();
+loadFromSheets();
+</script>
+<!-- ===== SHEETS CONFIG MODAL ===== -->
+<div class="modal-bg" id="sheets-modal" onclick="if(event.target===this)closeSheetsModal()">
+  <div style="background:var(--bg2);border:1.5px solid var(--bd);border-radius:16px;padding:24px;width:500px;max-width:96vw;box-shadow:var(--shadow-md)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <span style="font-size:15px;font-weight:700">⚙️ Kết nối Google Sheets</span>
+      <button class="btn bg" style="height:28px;padding:0 10px;font-size:12px" onclick="closeSheetsModal()">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--t3);margin-bottom:18px">Dán URL Apps Script để đồng bộ dữ liệu lên Google Sheets. Mọi máy dùng chung 1 link sẽ thấy cùng dữ liệu.</p>
+
+    <div style="margin-bottom:14px">
+      <div class="lbl" style="margin-bottom:6px">Apps Script URL</div>
+      <input type="text" class="inp" id="sheets-url-input"
+        placeholder="https://script.google.com/macros/s/.../exec"
+        style="font-size:12px;font-family:'IBM Plex Mono',monospace">
+    </div>
+
+    <!-- Status -->
+    <div id="sheets-test-result" style="display:none;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px"></div>
+
+    <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:8px">
+        <button class="btn bg" style="height:32px;font-size:12px" onclick="testSheetsURL()">🔌 Test kết nối</button>
+        <button class="btn bg" style="height:32px;font-size:12px;color:var(--red);border-color:#fecaca" onclick="clearSheetsURL()">🗑 Xóa URL</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bg" onclick="closeSheetsModal()">Hủy</button>
+        <button class="btn bp" onclick="saveSheetsURL()">💾 Lưu & Kết nối</button>
+      </div>
+    </div>
+
+    <!-- Current status -->
+    <div style="margin-top:16px;padding:10px 14px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--t3)">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <span id="sheets-current-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--bd2);display:inline-block"></span>
+        <span id="sheets-current-status-text">Chưa cấu hình</span>
+      </div>
+      <div id="sheets-current-url" style="font-family:'IBM Plex Mono',monospace;word-break:break-all;color:var(--t3)"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Sheets Modal ───────────────────────────────────────
+function openSheetsModal() {
+  const url = localStorage.getItem('plt_sheets_url') || '';
+  document.getElementById('sheets-url-input').value = url;
+  document.getElementById('sheets-test-result').style.display = 'none';
+  updateSheetsStatusDisplay();
+  document.getElementById('sheets-modal').classList.add('open');
+}
+function closeSheetsModal() {
+  document.getElementById('sheets-modal').classList.remove('open');
+}
+function updateSheetsStatusDisplay() {
+  const url = localStorage.getItem('plt_sheets_url') || '';
+  const dot  = document.getElementById('sheets-current-status-dot');
+  const text = document.getElementById('sheets-current-status-text');
+  const urlEl= document.getElementById('sheets-current-url');
+  if (url) {
+    dot.style.background  = 'var(--green)';
+    text.textContent = '✓ Đã cấu hình';
+    text.style.color = 'var(--green)';
+    urlEl.textContent = url;
+  } else {
+    dot.style.background  = 'var(--bd2)';
+    text.textContent = 'Chưa cấu hình — dữ liệu chỉ lưu local';
+    text.style.color = 'var(--t3)';
+    urlEl.textContent = '';
+  }
+}
+function saveSheetsURL() {
+  const url = document.getElementById('sheets-url-input').value.trim();
+  if (url && !url.startsWith('https://script.google.com')) {
+    alert('URL không hợp lệ. Phải bắt đầu bằng https://script.google.com');
+    return;
+  }
+  SHEETS_URL = url;
+  localStorage.setItem('plt_sheets_url', url);
+  updateSheetsStatusDisplay();
+  showTestResult(url ? '✓ Đã lưu URL. Đang thử kết nối...' : '✓ Đã xóa URL. Dùng localStorage.', url ? 'var(--green)' : 'var(--t3)', url ? 'var(--greenli)' : 'var(--bg3)');
+  if (url) {
+    setTimeout(() => { closeSheetsModal(); loadFromSheets(); }, 800);
+  } else {
+    setTimeout(closeSheetsModal, 1000);
+  }
+}
+function clearSheetsURL() {
+  document.getElementById('sheets-url-input').value = '';
+  SHEETS_URL = '';
+  localStorage.setItem('plt_sheets_url', '');
+  updateSheetsStatusDisplay();
+  showTestResult('✓ Đã xóa. Dữ liệu sẽ chỉ lưu trên máy này.', 'var(--t3)', 'var(--bg3)');
+}
+async function testSheetsURL() {
+  const url = document.getElementById('sheets-url-input').value.trim();
+  if (!url) { showTestResult('⚠ Nhập URL trước', 'var(--amber)', 'var(--amberli)'); return; }
+  showTestResult('⟳ Đang test...', 'var(--amber)', 'var(--amberli)');
+  try {
+    const res = await fetch(url + '?action=load&t=' + Date.now());
+    const data = await res.json();
+    if (data.ok !== undefined) {
+      showTestResult(`✓ Kết nối thành công! Tìm thấy ${(data.records||[]).length} bản ghi trên Sheets.`, 'var(--green)', 'var(--greenli)');
+    } else {
+      showTestResult('✗ Phản hồi không đúng định dạng. Kiểm tra lại Apps Script.', 'var(--red)', 'var(--redli)');
+    }
+  } catch(e) {
+    showTestResult('✗ Không kết nối được. Kiểm tra: (1) URL đúng chưa, (2) Deploy "Anyone" chưa, (3) Đã deploy lại sau khi sửa code chưa.', 'var(--red)', 'var(--redli)');
+  }
+}
+function showTestResult(msg, color, bg) {
+  const el = document.getElementById('sheets-test-result');
+  el.style.display = 'block';
+  el.style.color = color;
+  el.style.background = bg;
+  el.style.border = `1px solid ${color}44`;
+  el.textContent = msg;
+}
+</script>
+
+</body>
+</html>
